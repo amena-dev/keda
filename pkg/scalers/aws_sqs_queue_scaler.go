@@ -24,8 +24,9 @@ import (
 )
 
 const (
-	awsSqsQueueMetricName    = "ApproximateNumberOfMessages"
-	targetQueueLengthDefault = 5
+	awsSqsQueueVisibleMetricName    = "ApproximateNumberOfMessages"
+	awsSqsQueueNotVisibleMetricName = "ApproximateNumberOfMessagesNotVisible"
+	targetQueueLengthDefault        = 5
 )
 
 type awsSqsQueueScaler struct {
@@ -154,7 +155,7 @@ func (s *awsSqsQueueScaler) GetMetrics(ctx context.Context, metricName string, m
 // Get SQS Queue Length
 func (s *awsSqsQueueScaler) GetAwsSqsQueueLength() (int32, error) {
 	input := &sqs.GetQueueAttributesInput{
-		AttributeNames: aws.StringSlice([]string{awsSqsQueueMetricName}),
+		AttributeNames: aws.StringSlice([]string{awsSqsQueueVisibleMetricName, awsSqsQueueNotVisibleMetricName}),
 		QueueUrl:       aws.String(s.metadata.queueURL),
 	}
 
@@ -185,10 +186,15 @@ func (s *awsSqsQueueScaler) GetAwsSqsQueueLength() (int32, error) {
 		return -1, err
 	}
 
-	approximateNumberOfMessages, err := strconv.ParseInt(*output.Attributes[awsSqsQueueMetricName], 10, 32)
+	approximateNumberOfMessages, err := strconv.ParseInt(*output.Attributes[awsSqsQueueVisibleMetricName], 10, 32)
 	if err != nil {
 		return -1, err
 	}
 
-	return int32(approximateNumberOfMessages), nil
+	approximateNumberOfMessagesNotVisible, err := strconv.ParseInt(*output.Attributes[awsSqsQueueNotVisibleMetricName], 10, 32)
+	if err != nil {
+		return -1, err
+	}
+
+	return int32(approximateNumberOfMessages + approximateNumberOfMessagesNotVisible), nil
 }

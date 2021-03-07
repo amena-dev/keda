@@ -5,8 +5,8 @@ VERSION		   ?= main
 IMAGE_REGISTRY ?= docker.io
 IMAGE_REPO     ?= kedacore
 
-IMAGE_CONTROLLER = $(IMAGE_REGISTRY)/$(IMAGE_REPO)/keda:$(VERSION)
-IMAGE_ADAPTER    = $(IMAGE_REGISTRY)/$(IMAGE_REPO)/keda-metrics-apiserver:$(VERSION)
+IMAGE_CONTROLLER = $(IMAGE_REPO)/keda:$(VERSION)
+IMAGE_ADAPTER    = $(IMAGE_REPO)/keda-metrics-apiserver:$(VERSION)
 
 IMAGE_BUILD_TOOLS = $(IMAGE_REGISTRY)/$(IMAGE_REPO)/build-tools:main
 
